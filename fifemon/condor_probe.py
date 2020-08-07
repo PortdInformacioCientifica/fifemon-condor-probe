@@ -5,7 +5,7 @@ from optparse import OptionParser
 import logging
 import time
 import os
-import ConfigParser
+import configparser
 import pprint
 
 from fifemon import Probe, condor

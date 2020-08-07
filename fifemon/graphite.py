@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import logging
 import time
-import cPickle
+import pickle
 import struct
 import socket
 import sys
@@ -40,7 +40,7 @@ class Graphite(object):
             logger.debug(str(t))
         for i in xrange(len(post_data)//batch_size + 1):
             # pickle data
-            payload = cPickle.dumps(post_data[i*batch_size:(i+1)*batch_size], protocol=2)
+            payload = pickle.dumps(post_data[i*batch_size:(i+1)*batch_size], protocol=2)
             header = struct.pack("!L", len(payload))
             message = header + payload
             # throw data at graphite

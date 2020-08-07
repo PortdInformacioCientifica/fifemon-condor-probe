@@ -33,7 +33,7 @@ class Probe(object):
             logger.setLevel(logging.INFO)
 
         if self.use_graphite:
-            from graphite import Graphite
+            from .graphite import Graphite
             self.graphite = Graphite(self.graphite_host, self.graphite_pickle_port)
         if self.use_influxdb:
             from influx import Influxdb
