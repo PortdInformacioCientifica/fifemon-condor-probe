@@ -144,7 +144,7 @@ def get_options():
             help="port on which to publish HTTP metrics")
     (cmd_opts,args) = parser.parse_args()
 
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     config.read(args)
 
     def parse_tags(tags):
