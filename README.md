@@ -10,10 +10,19 @@ may require some tweaking to work well for your pool.
 
 Copyright Fermi National Accelerator Laboratory (FNAL/Fermilab). See LICENSE.txt.
 
+PIC fork
+=======
+
+This fork is intended to change the original one to allow GPUs using the own PIC
+GPUs HTCondor report system.
+
+The code has been migrated to python3.
+
 Requirements
 ------------
 
 * Python 2.7 or greater recommended.
+* Python 3.6 recommended for branch python3.
 * HTCondor libraries and Python bindings
     * https://research.cs.wisc.edu/htcondor/downloads/
 	* https://pypi.org/project/htcondor/ (setup.py will install this, see below)
