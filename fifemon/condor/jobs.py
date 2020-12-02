@@ -43,7 +43,7 @@ def job_metrics(job_classad):
     except:
         user_name = "unknown"
     try:
-        groups = re.findall(r'(?:group_)?(\w+)',job_classad.get("AccountingGroup","group_unknown"))
+        groups = re.findall(r'(?:group_)?(\w+)',job_classad.geteval("AccountingGroup","group_unknown"))
         exp_name = groups[0]
         subgroups = []
         if len(groups) > 1:
