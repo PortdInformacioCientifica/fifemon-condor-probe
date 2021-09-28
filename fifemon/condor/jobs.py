@@ -126,7 +126,7 @@ def get_idle_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "AccountingGroup","JobStatus",
                 "DESIRED_usage_model","DESIRED_Sites","JobUniverse",
                 "QDate","ServerTime",
-                "RequestMemory","RequestDisk","RequestCpus","Requestgpus"])
+                "RequestMemory","RequestDisk","RequestCpus","RequestGpus"])
 
 def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==2', retry_delay=retry_delay, max_retries=max_retries,
@@ -137,7 +137,7 @@ def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "ServerTime","JobCurrentStartDate","RemoteUserCpu",
                 "RequestMemory","ResidentSetSize_RAW",
                 "RequestDisk","DiskUsage_RAW","RequestCpus",
-		"AssignedGPus","GPUsProvisioned","Requestgpus"])
+		"AssignedGPus","GPUsProvisioned","RequestGpus"])
 
 def get_held_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==5', retry_delay=retry_delay, max_retries=max_retries,
@@ -240,14 +240,15 @@ class Jobs(object):
                         std_slots = max(std_slots,cpus)
                     except:
                         pass
-                if "Requestgpus" in r:
+                if "RequestGpus" in r:
                     std_slots_gpu = 1
-                    gpus = r.eval("Requestgpus")
-                    try:
-                        counts[m+".gpu_request"] += gpus
-                        std_slots_gpu = max(std_slots_gpu,gpus)
-                    except:
-                        pass
+                    gpus = r.eval("RequestGpus")
+                    if type(gpus) == int:
+                        try:
+                            counts[m+".gpu_request"] += gpus
+                            std_slots_gpu = max(std_slots_gpu,gpus)
+                        except:
+                            pass
                 if "RequestMemory" in r:
                     mem = r.eval("RequestMemory")
                     try:
