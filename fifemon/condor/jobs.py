@@ -88,6 +88,8 @@ def job_metrics(job_classad):
             counters.append(".running.sites.unknown")
     elif job_classad["JobStatus"] == 5:
         counters = [".held.totals"]
+    elif job_classad["JobStatus"] == 7:
+        counters = [".suspended.totals"]
     else:
         counters = [".unknown.totals"]
 
@@ -141,6 +143,15 @@ def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
 
 def get_held_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==5', retry_delay=retry_delay, max_retries=max_retries,
+            attrs=["ClusterId","ProcId","Owner",
+                "AccountingGroup","JobStatus",
+                "JobUniverse",
+                "ServerTime",
+		"Requestgpus",
+                "EnteredCurrentStatus"])
+
+def get_suspended_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
+    get_jobs(job_q, schedd_ad, constraint='JobStatus==7', retry_delay=retry_delay, max_retries=max_retries,
             attrs=["ClusterId","ProcId","Owner",
                 "AccountingGroup","JobStatus",
                 "JobUniverse",
@@ -208,6 +219,7 @@ class Jobs(object):
             get_idle_jobs(job_q,a,retry_delay,max_retries)
             get_running_jobs(job_q,a,retry_delay,max_retries)
             get_held_jobs(job_q,a,retry_delay,max_retries)
+            get_suspended_jobs(job_q,a,retry_delay,max_retries)
 
         logger.info("Processing jobs")
         counts = defaultdict(int)
