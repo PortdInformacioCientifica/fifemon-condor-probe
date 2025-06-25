@@ -236,7 +236,8 @@ class Jobs(object):
                 if walltime > 0 and cputime > 0:
                     counts[m+".walltime"] += walltime
                     counts[m+".cputime"] += cputime
-                    counts[m+".efficiency"] = max(min(counts[m+".cputime"]/counts[m+".walltime"]*100,100),0)
+                    #counts[m+".efficiency"] = max(min(counts[m+".cputime"]/counts[m+".walltime"]*100,100),0)
+                    counts[m+".efficiency"] = max(counts[m+".cputime"] / counts[m+".walltime"] * 100, 0)
                     counts[m+".wastetime"] = counts[m+".walltime"]-counts[m+".cputime"]
                     if counts[m+".count"] > 0:
                         counts[m+".wastetime_avg"] = counts[m+".wastetime"]/counts[m+".count"]
