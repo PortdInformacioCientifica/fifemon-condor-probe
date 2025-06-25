@@ -179,7 +179,8 @@ class Jobs(object):
         return (now-start)*job_classad.geteval("RequestCpus",1)
 
     def job_cputime(self, job_classad):
-        return job_classad.get("RemoteUserCpu",0)
+        #return job_classad.get("RemoteUserCpu",0)
+        return job_classad.get("RemoteUserCpu", 0) + job_classad.get("RemoteSysCpu", 0)
 
     def job_bin(self, job_classad):
         bin = None
