@@ -136,7 +136,8 @@ def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "MATCH_GLIDEIN_Site","MATCH_EXP_JOBGLIDEIN_ResourceName",
                 "AccountingGroup","JobStatus",
                 "JobUniverse",
-                "ServerTime","JobCurrentStartDate","RemoteUserCpu",
+                "ServerTime","JobCurrentStartDate",
+                "RemoteUserCpu","RemoteSysCpu",
                 "RequestMemory","ResidentSetSize_RAW",
                 "RequestDisk","DiskUsage_RAW","RequestCpus",
 		"AssignedGPus","GPUsProvisioned","RequestGpus"])
