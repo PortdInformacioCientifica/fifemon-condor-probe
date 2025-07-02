@@ -128,7 +128,8 @@ def get_idle_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "AccountingGroup","JobStatus",
                 "DESIRED_usage_model","DESIRED_Sites","JobUniverse",
                 "QDate","ServerTime",
-                "RequestMemory","RequestDisk","RequestCpus","RequestGpus"])
+                "RequestMemory","RequestDisk","RequestCpus","RequestGpus",
+                "NumJobStarts"])
 
 def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==2', retry_delay=retry_delay, max_retries=max_retries,
@@ -140,25 +141,24 @@ def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "RemoteUserCpu","RemoteSysCpu",
                 "RequestMemory","ResidentSetSize_RAW",
                 "RequestDisk","DiskUsage_RAW","RequestCpus",
-		"AssignedGPus","GPUsProvisioned","RequestGpus"])
+		        "AssignedGPus","GPUsProvisioned","RequestGpus",
+                "NumJobStarts"])
 
 def get_held_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==5', retry_delay=retry_delay, max_retries=max_retries,
             attrs=["ClusterId","ProcId","Owner",
                 "AccountingGroup","JobStatus",
-                "JobUniverse",
-                "ServerTime",
-		"Requestgpus",
-                "EnteredCurrentStatus"])
+                "JobUniverse","ServerTime",
+		        "Requestgpus", "EnteredCurrentStatus",
+                "NumJobStarts"])
 
 def get_suspended_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==7', retry_delay=retry_delay, max_retries=max_retries,
             attrs=["ClusterId","ProcId","Owner",
                 "AccountingGroup","JobStatus",
-                "JobUniverse",
-                "ServerTime",
-		"Requestgpus",
-                "EnteredCurrentStatus"])
+                "JobUniverse","ServerTime",
+		        "Requestgpus","EnteredCurrentStatus",
+                "NumJobStarts"])
 
 
 class Jobs(object):
