@@ -244,18 +244,20 @@ class Jobs(object):
                 cputime = self.job_cputime(r)
                 susptime_non = self.job_susptime_non(r)
                 susptime = self.job_susptime(r)
-                if walltime > 0 and cputime > 0:
+                if walltime > 0:
                     counts[m+".walltime"] += walltime
-                    counts[m+".cputime"] += cputime
-                    #counts[m+".efficiency"] = max(min(counts[m+".cputime"]/counts[m+".walltime"]*100,100),0)
+                    if cputime > 0:
+                        counts[m+".cputime"] += cputime
+                        counts[m+".wastetime"] += counts[m+".walltime"]-counts[m+".cputime"]
+                    if susptime > 0:
+                        counts[m+".susptime"] += susptime
+
+                if counts[m+".walltime"] > 0:
                     counts[m+".efficiency"] = max(counts[m+".cputime"] / counts[m+".walltime"] * 100, 0)
-                    counts[m+".wastetime"] = counts[m+".walltime"]-counts[m+".cputime"]
-                    if counts[m+".count"] > 0:
-                        counts[m+".wastetime_avg"] = counts[m+".wastetime"]/counts[m+".count"]
-                if walltime > 0 and susptime > 0:
-                    counts[m+".walltime"] += walltime
-                    counts[m+".susptime"] += susptime
                     counts[m+".susp_eff"] = max(counts[m+".susptime"] / counts[m+".walltime"] * 100, 0)
+
+                if counts[m+".count"] > 0:
+                    counts[m+".wastetime_avg"] = (counts[m+".wastetime"] / counts[m+".count"])
 
                 ## one standard slot == 1 cpu and 2000 MB of memory (undefined amount of disk)
                 ## one standar gpu slot == 1 gpu (undefined the rest)
