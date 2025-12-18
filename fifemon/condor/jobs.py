@@ -129,7 +129,7 @@ def get_idle_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "DESIRED_usage_model","DESIRED_Sites","JobUniverse",
                 "QDate","ServerTime",
                 "RequestMemory","RequestDisk","RequestCpus","RequestGpus",
-                "NumJobStarts"])
+                "CumulativeSuspensionTime","NumJobStarts"])
 
 def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==2', retry_delay=retry_delay, max_retries=max_retries,
@@ -142,7 +142,7 @@ def get_running_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "RequestMemory","ResidentSetSize_RAW",
                 "RequestDisk","DiskUsage_RAW","RequestCpus",
 		        "AssignedGPus","GPUsProvisioned","RequestGpus",
-                "NumJobStarts"])
+                "CumulativeSuspensionTime","NumJobStarts"])
 
 def get_held_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==5', retry_delay=retry_delay, max_retries=max_retries,
@@ -150,7 +150,7 @@ def get_held_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "AccountingGroup","JobStatus",
                 "JobUniverse","ServerTime",
 		        "Requestgpus", "EnteredCurrentStatus",
-                "NumJobStarts"])
+                "CumulativeSuspensionTime","NumJobStarts"])
 
 def get_suspended_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==7', retry_delay=retry_delay, max_retries=max_retries,
@@ -158,7 +158,7 @@ def get_suspended_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
                 "AccountingGroup","JobStatus",
                 "JobUniverse","ServerTime",
 		        "Requestgpus","EnteredCurrentStatus",
-                "NumJobStarts"])
+                "CumulativeSuspensionTime","NumJobStarts"])
 
 
 class Jobs(object):
@@ -182,6 +182,13 @@ class Jobs(object):
     def job_cputime(self, job_classad):
         #return job_classad.get("RemoteUserCpu",0)
         return job_classad.get("RemoteUserCpu", 0) + job_classad.get("RemoteSysCpu", 0)
+
+    def job_susptime_non(self, job_classad):
+        return job_classad.get("CumulativeSuspensionTime", 0)
+
+    def job_susptime(self, job_classad):
+        susp_non = job_classad.get("CumulativeSuspensionTime", 0)
+        return susp_non*job_classad.geteval("RequestCpus",1)
 
     def job_bin(self, job_classad):
         bin = None
@@ -235,6 +242,8 @@ class Jobs(object):
 
                 walltime = self.job_walltime(r)
                 cputime = self.job_cputime(r)
+                susptime_non = self.job_susptime_non(r)
+                susptime = self.job_susptime(r)
                 if walltime > 0 and cputime > 0:
                     counts[m+".walltime"] += walltime
                     counts[m+".cputime"] += cputime
@@ -243,6 +252,10 @@ class Jobs(object):
                     counts[m+".wastetime"] = counts[m+".walltime"]-counts[m+".cputime"]
                     if counts[m+".count"] > 0:
                         counts[m+".wastetime_avg"] = counts[m+".wastetime"]/counts[m+".count"]
+                if walltime > 0 and susptime > 0:
+                    counts[m+".walltime"] += walltime
+                    counts[m+".susptime"] += susptime
+                    counts[m+".susp_eff"] = max(counts[m+".susptime"] / counts[m+".walltime"] * 100, 0)
 
                 ## one standard slot == 1 cpu and 2000 MB of memory (undefined amount of disk)
                 ## one standar gpu slot == 1 gpu (undefined the rest)
@@ -276,6 +289,14 @@ class Jobs(object):
                         counts[m+".disk_request_b"] += r.eval("RequestDisk")*1024
                     except:
                         pass
+                if "NumJobStarts" in r:
+                    try:
+                        num_starts = r.eval("NumJobStarts")
+                        counts[m+".num_starts"] += num_starts
+                        std_slots = max(std_slots,num_starts)
+                    except:
+                        pass
+
                 counts[m+".std_slots"] += std_slots
                 counts[m+".std_slots_gpu"] += std_slots_gpu
 
