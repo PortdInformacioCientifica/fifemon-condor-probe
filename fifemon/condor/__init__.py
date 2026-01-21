@@ -8,6 +8,6 @@ from .priorities import get_pool_priorities
 from .jobs import Jobs
 
 # disable debug logging, causes memory leak in long-running processes
-import htcondor
+import htcondor2 as htcondor
 htcondor.param['TOOL_LOG'] = '/dev/null'
 htcondor.enable_log()

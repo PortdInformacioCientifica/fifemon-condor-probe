@@ -6,8 +6,8 @@ from threading import Thread
 import traceback
 import re
 
-import classad
-import htcondor
+import classad2 as classad
+import htcondor2 as htcondor
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +25,10 @@ def geteval(self, key, default=None):
     if the attribute is an expression, eval() it.
     """
     r = self.get(key,default)
-    if isinstance(r, classad.ExprTree):
-        return r.eval()
-    return r
+    #if isinstance(r, classad.ExprTree):
+    #    return r.eval()
+    #return r
+    return classad.ExprTree(r).eval(self)
 
 classad.ClassAd.geteval = geteval
 
@@ -156,10 +157,27 @@ def get_suspended_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==7', retry_delay=retry_delay, max_retries=max_retries,
             attrs=["ClusterId","ProcId","Owner",
                 "AccountingGroup","JobStatus",
-                "JobUniverse","ServerTime",
+                "JobUniverse",
+                "ServerTime","JobCurrentStartDate",
+                "RemoteUserCpu","RemoteSysCpu",
+                "RequestMemory","ResidentSetSize_RAW",
+                "RequestDisk","DiskUsage_RAW","RequestCpus",
+		        "AssignedGPus","GPUsProvisioned","RequestGpus",
 		        "Requestgpus","EnteredCurrentStatus",
                 "CumulativeSuspensionTime","NumJobStarts"])
 
+def get_runsusp_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
+    get_jobs(job_q, schedd_ad, constraint='JobStatus==2 && JobStatus == 7', retry_delay=retry_delay, max_retries=max_retries,
+            attrs=["ClusterId","ProcId","Owner",
+                "MATCH_GLIDEIN_Site","MATCH_EXP_JOBGLIDEIN_ResourceName",
+                "AccountingGroup","JobStatus",
+                "JobUniverse",
+                "ServerTime","JobCurrentStartDate",
+                "RemoteUserCpu","RemoteSysCpu",
+                "RequestMemory","ResidentSetSize_RAW",
+                "RequestDisk","DiskUsage_RAW","RequestCpus",
+		        "AssignedGPus","GPUsProvisioned","RequestGpus",
+                "CumulativeSuspensionTime","NumJobStarts"])
 
 class Jobs(object):
     def __init__(self, pool="localhost"):
@@ -229,6 +247,7 @@ class Jobs(object):
             get_running_jobs(job_q,a,retry_delay,max_retries)
             get_held_jobs(job_q,a,retry_delay,max_retries)
             get_suspended_jobs(job_q,a,retry_delay,max_retries)
+            get_runsusp_jobs(job_q,a,retry_delay,max_retries)
 
         logger.info("Processing jobs")
         counts = defaultdict(int)
@@ -244,7 +263,7 @@ class Jobs(object):
                 cputime = self.job_cputime(r)
                 susptime_non = self.job_susptime_non(r)
                 susptime = self.job_susptime(r)
-                if walltime > 0:
+                if walltime > 0: 
                     counts[m+".walltime"] += walltime
                     if cputime > 0:
                         counts[m+".cputime"] += cputime

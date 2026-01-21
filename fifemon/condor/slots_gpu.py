@@ -5,8 +5,8 @@ import logging
 import time
 import math
 
-import classad
-import htcondor
+import classad2 as classad
+import htcondor2 as htcondor
 
 logger = logging.getLogger(__name__)
 
