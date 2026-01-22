@@ -104,16 +104,16 @@ def job_metrics(job_classad):
         metrics.append("users."+user_name+counter)
     return metrics
 
-
 def get_jobs(job_q, schedd_ad, constraint=True, attrs=['ClusterId','ProcId','JobStatus'], retry_delay=30, max_retries=4):
     retries=0
     while retries < max_retries:
         try:
             schedd = htcondor.Schedd(schedd_ad)
             results = schedd.query(constraint, attrs)
-        except IOError:
+        except (IOError, htcondor.HTCondorException):
+            # Adding the HTCondorException
             traceback.print_exc()
-            logger.warning("Trouble communicating with schedd {0}, retrying in {1}s.".format(schedd_ad['Name'],retry_delay))
+            logger.warning("Trouble communicating with schedd {0}, retrying in {1}s.".format(schedd_ad.get('Name', 'unknown'), retry_delay))
             retries += 1
             time.sleep(retry_delay)
             continue
@@ -121,7 +121,7 @@ def get_jobs(job_q, schedd_ad, constraint=True, attrs=['ClusterId','ProcId','Job
             for r in results:
                 job_q.append(r)
             return
-    logger.error("Trouble communicating with schedd {0}, giving up.".format(schedd_ad['Name']))
+    logger.error("Trouble communicating with schedd {0}, giving up.".format(schedd_ad.get('Name', 'unknown')))
 
 def get_idle_jobs(job_q, schedd_ad, retry_delay=30, max_retries=4):
     get_jobs(job_q, schedd_ad, constraint='JobStatus==1', retry_delay=retry_delay, max_retries=max_retries,
