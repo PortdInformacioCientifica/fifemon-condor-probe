@@ -28,7 +28,11 @@ def geteval(self, key, default=None):
     #if isinstance(r, classad.ExprTree):
     #    return r.eval()
     #return r
-    return classad.ExprTree(r).eval(self)
+    #return classad.ExprTree(r).eval(self)
+    if isinstance(r, classad.ExprTree):
+        val = r.eval(self)
+        return default if val == classad.Value.Undefined else val
+    return r
 
 classad.ClassAd.geteval = geteval
 
